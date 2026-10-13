@@ -11,3 +11,8 @@ class EstateProperty(models.Model):
         selection_add=[("reserved", "Dipesan")],
         ondelete={"reserved": "set default"},
     )
+    booking_ids = fields.One2many(
+        "estate.booking",
+        "property_id",
+        string="Daftar Reservasi",
+    )
