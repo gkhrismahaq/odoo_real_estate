@@ -1,24 +1,26 @@
 ---
-name: openspec-ff-change
-description: Fast-forward through OpenSpec artifact creation. Use when the user wants to quickly create all artifacts needed for implementation without stepping through each one individually.
-allowed-tools: Bash(openspec:*)
-license: MIT
-compatibility: Requires openspec CLI.
-metadata:
-  author: openspec
-  version: "1.0"
-  generatedBy: "1.7.0"
+description: "Propose a new change - create it and generate all artifacts in one step"
 ---
 
-Fast-forward through artifact creation - generate everything needed to start implementation in one go.
+Propose a new change - create the change and generate all artifacts in one step.
+
+I'll create a change with the artifacts your schema defines. With the default spec-driven schema that is:
+- proposal.md (what & why)
+- `specs/<capability>/spec.md` (what the system must do - a delta, not the main spec)
+- design.md (how)
+- tasks.md (implementation steps)
+
+When ready to implement, run /opsx-apply
+
+---
 
 **Store selection:** If the user names a store (a store is a standalone OpenSpec repo registered on this machine) or the work lives in one, run `openspec store list --json` to discover registered store ids, then pass `--store <id>` on the commands that read or write specs and changes (`new change`, `status`, `instructions`, `list`, `show`, `validate`, `archive`, `doctor`, `context`, `view`). Other commands do not take the flag. Hints printed by commands already carry the flag; keep it on follow-ups. Without a store, commands act on the nearest local `openspec/` root.
 
-**Input**: The user's request should include a change name (kebab-case) OR a description of what they want to build.
+**Input**: The argument after `/opsx-propose` is the change name (kebab-case), OR a description of what the user wants to build.
 
 **Steps**
 
-1. **If no clear input provided, ask what they want to build**
+1. **If no input provided, ask what they want to build**
 
    Ask the user (open-ended, no preset options):
    > "What change do you want to work on? Describe what you want to build or fix."
@@ -31,7 +33,7 @@ Fast-forward through artifact creation - generate everything needed to start imp
    ```bash
    openspec new change "<name>"
    ```
-   This creates a scaffolded change in the planning home resolved by the CLI.
+   This creates a scaffolded change in the planning home resolved by the CLI with `.openspec.yaml`.
 
 3. **Get the artifact build order**
    ```bash
@@ -65,7 +67,7 @@ Fast-forward through artifact creation - generate everything needed to start imp
       - If the `instruction` field delegates creation to a specific skill or command, invoke it to produce the artifact instead of writing the file yourself, then verify the artifact file exists at `resolvedOutputPath`
       - Otherwise create the artifact file using `template` as the structure and write it to `resolvedOutputPath`. If `resolvedOutputPath` is a glob, follow `instruction` to choose the concrete file path
       - Apply `context` and `rules` as constraints - but do NOT copy them into the file
-      - Show brief progress: "✓ Created <artifact-id>"
+      - Show brief progress: "Created <artifact-id>"
 
    b. **Continue until every artifact in the required set exists (not just `apply.requires`)**
       - After creating each artifact, re-run `openspec status --change "<name>" --json`
@@ -92,7 +94,7 @@ After completing all artifacts, summarize:
 - Change name and location
 - List of artifacts created with brief descriptions, plus any conditional artifact you skipped and why
 - What's ready: "All artifacts needed for implementation are ready."
-- Prompt: "Run `$openspec-apply-change` or ask me to implement to start working on the tasks."
+- Prompt: "Run `/opsx-apply` to start implementing."
 
 **Artifact Creation Guidelines**
 
@@ -109,5 +111,5 @@ After completing all artifacts, summarize:
 - Create every artifact the apply phase transitively depends on, not just the ids listed in `apply.requires`
 - Always read dependency artifacts before creating a new one - re-read from disk, not from conversation memory (files may have changed since you last saw them)
 - If context is critically unclear, ask the user - but prefer making reasonable decisions to keep momentum
-- If a change with that name already exists, suggest continuing that change instead
+- If a change with that name already exists, ask if user wants to continue it or create a new one
 - Verify each artifact file exists after writing before proceeding to next
