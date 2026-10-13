@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template: Rincian Properti Publik (Minimalist & Modern) -->
+    <template id="property_detail" name="Detail Properti">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty py-4">
+                <div class="container">
+
+                    <!-- Breadcrumb Navigasi Minimalis -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb bg-transparent p-0 mb-0 small text-muted">
+                            <li class="breadcrumb-item">
+                                <a href="/" class="text-decoration-none text-muted">Beranda</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="/properties" class="text-decoration-none text-muted">Katalog
+                                    Properti</a>
+                            </li>
+                            <li class="breadcrumb-item active text-dark" aria-current="page">
+                                <t t-esc="property.name" />
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <!-- Layout 2 Kolom Minimalis -->
+                    <div class="row g-5">
+
+                        <!-- Kolom Kiri: Informasi Utama & Spesifikasi -->
+                        <div class="col-12 col-lg-8">
+
+                            <!-- Header Judul, Kategori & Lokasi -->
+                            <div class="mb-4 pb-3 border-bottom">
+                                <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                    <span t-if="property.property_type_id"
+                                        class="badge rounded-pill bg-light text-dark border">
+                                        <t t-esc="property.property_type_id.name" />
+                                    </span>
+                                    <t t-if="property.tags_ids" t-foreach="property.tags_ids"
+                                        t-as="tag">
+                                        <span class="badge rounded-pill bg-light text-muted border">
+                                            <t t-esc="tag.name" />
+                                        </span>
+                                    </t>
+                                    <span
+                                        class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                        Tersedia
+                                    </span>
+                                </div>
+                                <h1 class="fw-semibold text-dark h2 mb-2">
+                                    <t t-esc="property.name" />
+                                </h1>
+                                <div
+                                    class="text-muted small d-flex flex-wrap align-items-center gap-3"
+                                    t-if="property.postcode or property.date_availability">
+                                    <span t-if="property.postcode">
+                                        <i class="fa fa-map-marker text-muted me-1" /> Kode Pos: <span
+                                            class="text-dark fw-medium" t-esc="property.postcode" />
+                                    </span>
+                                    <span t-if="property.date_availability">
+                                        <i class="fa fa-calendar-o text-muted me-1" /> Tersedia: <span
+                                            class="text-dark fw-medium"
+                                            t-field="property.date_availability"
+                                            t-options="{'widget': 'date'}" />
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Deskripsi -->
+                            <div class="mb-4" t-if="property.description">
+                                <h5 class="fw-semibold text-dark mb-2">Deskripsi</h5>
+                                <div class="text-secondary" style="line-height: 1.7;">
+                                    <p class="mb-0" t-field="property.description" />
+                                </div>
+                            </div>
+
+                            <!-- Spesifikasi Unit -->
+                            <div class="mb-4">
+                                <h5 class="fw-semibold text-dark mb-3">Spesifikasi Unit</h5>
+                                <div class="table-responsive">
+                                    <table
+                                        class="table table-borderless border-top border-bottom align-middle mb-0">
+                                        <tbody>
+                                            <tr class="border-bottom"
+                                                t-if="property.property_type_id">
+                                                <td class="text-muted py-3 w-50">Tipe Properti</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-esc="property.property_type_id.name" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom" t-if="property.bedrooms">
+                                                <td class="text-muted py-3">Kamar Tidur</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-esc="property.bedrooms" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom" t-if="property.living_area">
+                                                <td class="text-muted py-3">Luas Bangunan</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-esc="property.living_area" /> m² </td>
+                                            </tr>
+                                            <tr class="border-bottom" t-if="property.facades">
+                                                <td class="text-muted py-3">Fasad</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-esc="property.facades" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <td class="text-muted py-3">Garasi</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-if="property.garage">Ya</t>
+                                                    <t t-else="">Tidak</t>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <td class="text-muted py-3">Taman</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-if="property.garden">Ya</t>
+                                                    <t t-else="">Tidak</t>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom"
+                                                t-if="property.garden and property.garden_area">
+                                                <td class="text-muted py-3">Luas Taman</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-esc="property.garden_area" /> m² </td>
+                                            </tr>
+                                            <tr class="border-bottom"
+                                                t-if="property.garden and property.garden_orientation">
+                                                <td class="text-muted py-3">Orientasi Taman</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-if="property.garden_orientation == 'north'">
+                                                        Utara</t>
+                                                    <t
+                                                        t-elif="property.garden_orientation == 'south'">
+                                                        Selatan</t>
+                                                    <t
+                                                        t-elif="property.garden_orientation == 'east'">
+                                                        Timur</t>
+                                                    <t
+                                                        t-elif="property.garden_orientation == 'west'">
+                                                        Barat</t>
+                                                    <t t-else="">
+                                                        <t t-esc="property.garden_orientation" />
+                                                    </t>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom" t-if="property.salesperson_id">
+                                                <td class="text-muted py-3">Pramuniaga</td>
+                                                <td class="text-dark fw-semibold py-3">
+                                                    <t t-esc="property.salesperson_id.name" />
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- Kolom Kanan: Sticky Booking Card Minimalis -->
+                        <div class="col-12 col-lg-4">
+                            <div class="card border rounded-3 shadow-sm sticky-top"
+                                style="top: 2rem;">
+                                <div class="card-body p-4">
+                                    <div class="text-muted small mb-1">Harga Bukaan</div>
+                                    <div class="h3 fw-bold text-dark mb-4"
+                                        t-out="property.expected_price"
+                                        t-options="{'widget': 'monetary', 'display_currency': website.company_id.currency_id}" />
+
+                                    <div class="border-top pt-3 mb-4" t-if="property.booking_fee">
+                                        <div
+                                            class="d-flex justify-content-between align-items-baseline">
+                                            <span class="text-muted small">Uang Tanda Jadi</span>
+                                            <span class="fw-semibold text-primary"
+                                                t-out="property.booking_fee"
+                                                t-options="{'widget': 'monetary', 'display_currency': website.company_id.currency_id}" />
+                                        </div>
+                                    </div>
+
+                                    <a t-attf-href="/booking/checkout?property_id=#{property.id}"
+                                        class="btn btn-primary w-100 py-2 fw-semibold rounded-2 mb-3">
+                                        Book Now
+                                    </a>
+
+                                    <div class="text-center">
+                                        <a href="/properties"
+                                            class="text-decoration-none small text-muted">
+                                            ← Kembali ke Katalog
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

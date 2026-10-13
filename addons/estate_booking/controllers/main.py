@@ -28,3 +28,31 @@ class PropertyCatalogController(http.Controller):
             "properties": properties,
         }
         return request.render("estate_booking.property_catalog", values)
+
+    @http.route(
+        ["/property/<int:property_id>"],
+        type="http",
+        auth="public",
+        website=True,
+        sitemap=True,
+    )
+    def property_detail(self, property_id, **kwargs):
+        """Menampilkan rincian informasi unit properti yang berstatus baru (tersedia)."""
+        property_sudo = (
+            request.env["estate.property"]
+            .sudo()
+            .browse(property_id)
+            .exists()
+        )
+        if (
+            not property_sudo
+            or not property_sudo.active
+            or property_sudo.status != "new"
+        ):
+            return request.redirect("/properties")
+
+        values = {
+            "property": property_sudo,
+        }
+        return request.render("estate_booking.property_detail", values)
+

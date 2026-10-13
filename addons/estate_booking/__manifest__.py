@@ -18,10 +18,12 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "views/estate_property_views.xml",
         "views/estate_booking_views.xml",
         "views/estate_installment_views.xml",
         "views/estate_booking_menus.xml",
         "views/portal_property_catalog_templates.xml",
+        "views/portal_property_detail_templates.xml",
     ],
     "application": True,
     "installable": True,

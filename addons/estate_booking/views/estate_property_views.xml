@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Inherit Form View estate.property untuk Input dan Preview Booking Fee -->
+    <record id="estate_property_view_form_inherit_booking" model="ir.ui.view">
+        <field name="name">estate.property.form.inherit.booking</field>
+        <field name="model">estate.property</field>
+        <field name="inherit_id" ref="estate.estate_property_view_form" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='expected_price']" position="after">
+                <field name="currency_id" invisible="1" />
+                <field name="booking_fee" widget="monetary" />
+                <field name="booking_fee_preview" readonly="1" class="text-muted small" />
+            </xpath>
+        </field>
+    </record>
+
+    <!-- Inherit Tree View estate.property untuk Menampilkan Kolom Booking Fee -->
+    <record id="estate_property_view_tree_inherit_booking" model="ir.ui.view">
+        <field name="name">estate.property.tree.inherit.booking</field>
+        <field name="model">estate.property</field>
+        <field name="inherit_id" ref="estate.estate_property_view_tree" />
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='expected_price']" position="after">
+                <field name="booking_fee" widget="monetary" optional="show" />
+            </xpath>
+        </field>
+    </record>
+
+</odoo>
