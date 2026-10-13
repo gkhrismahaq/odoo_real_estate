@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template: Katalog Properti Publik -->
+    <template id="property_catalog" name="Katalog Properti">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty">
+                <!-- Header Banner -->
+                <section class="bg-light py-5 mb-4 border-bottom">
+                    <div class="container text-center">
+                        <h1 class="display-5 fw-bold text-primary mb-2">Katalog Properti Pilihan</h1>
+                        <p class="lead text-muted mb-0">
+                            Temukan hunian dan unit properti terbaik yang siap Anda pesan hari ini.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- Konten Utama: Daftar Properti -->
+                <section class="container mb-5">
+                    <t t-if="properties">
+                        <div class="row g-4">
+                            <t t-foreach="properties" t-as="property">
+                                <div class="col-12 col-md-6 col-lg-4">
+                                    <div class="card h-100 shadow-sm border-0 d-flex flex-column">
+                                        <!-- Header Kartu: Tipe Properti & Status -->
+                                        <div class="card-header bg-transparent border-0 pt-3 px-3 d-flex justify-content-between align-items-center">
+                                            <span t-if="property.property_type_id" class="badge bg-primary-subtle text-primary border">
+                                                <t t-esc="property.property_type_id.name" />
+                                            </span>
+                                            <span t-else="" class="badge bg-secondary-subtle text-secondary border">
+                                                Properti
+                                            </span>
+                                            <span class="badge bg-success-subtle text-success border">
+                                                Tersedia
+                                            </span>
+                                        </div>
+
+                                        <!-- Badan Kartu -->
+                                        <div class="card-body px-3 py-2 flex-grow-1">
+                                            <h5 class="card-title fw-bold text-dark mb-2">
+                                                <t t-esc="property.name" />
+                                            </h5>
+                                            <div class="mb-3">
+                                                <span class="fs-4 fw-bold text-primary"
+                                                      t-out="property.expected_price"
+                                                      t-options="{'widget': 'monetary', 'display_currency': website.company_id.currency_id}" />
+                                            </div>
+
+                                            <!-- Ringkasan Spesifikasi -->
+                                            <div class="row g-2 text-muted small pt-2 border-top">
+                                                <div class="col-6" t-if="property.postcode">
+                                                    <i class="fa fa-map-marker text-danger me-1" />
+                                                    <span t-esc="property.postcode" />
+                                                </div>
+                                                <div class="col-6" t-if="property.bedrooms">
+                                                    <i class="fa fa-bed text-info me-1" />
+                                                    <span t-esc="property.bedrooms" /> Kamar
+                                                </div>
+                                                <div class="col-6" t-if="property.living_area">
+                                                    <i class="fa fa-home text-secondary me-1" />
+                                                    <span t-esc="property.living_area" /> m² Luas
+                                                </div>
+                                                <div class="col-6" t-if="property.booking_fee">
+                                                    <i class="fa fa-tag text-success me-1" />
+                                                    <span>Booking: </span>
+                                                    <span t-out="property.booking_fee"
+                                                          t-options="{'widget': 'monetary', 'display_currency': website.company_id.currency_id}" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Footer Kartu: Tombol Detail -->
+                                        <div class="card-footer bg-transparent border-0 pb-3 px-3">
+                                            <a t-attf-href="/property/#{property.id}" class="btn btn-outline-primary w-100 fw-semibold">
+                                                Lihat Detail <i class="fa fa-arrow-right ms-1" />
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </t>
+                        </div>
+                    </t>
+
+                    <!-- Kondisi Empty State -->
+                    <t t-else="">
+                        <div class="text-center py-5 my-5">
+                            <div class="mb-3">
+                                <i class="fa fa-building-o fa-4x text-muted opacity-50" />
+                            </div>
+                            <h3 class="fw-bold text-dark">Belum Ada Properti yang Tersedia</h3>
+                            <p class="text-muted col-md-6 mx-auto">
+                                Saat ini belum ada unit properti baru yang dibuka untuk pemesanan publik.
+                                Silakan hubungi agen kami atau kembali lagi dalam beberapa saat.
+                            </p>
+                        </div>
+                    </t>
+                </section>
+            </div>
+        </t>
+    </template>
+
+</odoo>
