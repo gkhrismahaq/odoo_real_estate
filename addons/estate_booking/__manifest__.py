@@ -15,7 +15,10 @@
         "payment",
         "account",
     ],
-    "data": [],
+    "data": [
+        "security/security.xml",
+        "security/ir.model.access.csv",
+    ],
     "application": True,
     "installable": True,
     "auto_install": False,
