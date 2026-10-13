@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Action Window: estate.booking -->
+    <record id="estate_booking_action" model="ir.actions.act_window">
+        <field name="name">Daftar Reservasi</field>
+        <field name="res_model">estate.booking</field>
+        <field name="view_mode">tree,form</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                Belum ada dokumen reservasi properti.
+            </p>
+            <p>
+                Buat dokumen reservasi untuk klien dan tautkan dengan unit properti yang tersedia.
+            </p>
+        </field>
+    </record>
+
+    <!-- Search View: estate.booking -->
+    <record id="estate_booking_view_search" model="ir.ui.view">
+        <field name="name">estate.booking.search</field>
+        <field name="model">estate.booking</field>
+        <field name="arch" type="xml">
+            <search string="Cari Reservasi">
+                <field name="name" string="Nomor Referensi" />
+                <field name="property_id" string="Properti" />
+                <field name="customer_id" string="Klien" />
+                <filter name="filter_draft" string="Draft" domain="[('state', '=', 'draft')]" />
+                <filter name="filter_waiting_payment" string="Menunggu Pembayaran" domain="[('state', '=', 'waiting_payment')]" />
+                <filter name="filter_confirmed" string="Terkonfirmasi" domain="[('state', '=', 'confirmed')]" />
+                <filter name="filter_canceled" string="Dibatalkan" domain="[('state', '=', 'canceled')]" />
+                <group expand="0" string="Kelompokkan Berdasarkan">
+                    <filter name="group_by_property" string="Properti" context="{'group_by': 'property_id'}" />
+                    <filter name="group_by_customer" string="Klien" context="{'group_by': 'customer_id'}" />
+                    <filter name="group_by_state" string="Status" context="{'group_by': 'state'}" />
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!-- Tree/List View: estate.booking -->
+    <record id="estate_booking_view_tree" model="ir.ui.view">
+        <field name="name">estate.booking.tree</field>
+        <field name="model">estate.booking</field>
+        <field name="arch" type="xml">
+            <tree string="Daftar Reservasi">
+                <field name="name" />
+                <field name="property_id" />
+                <field name="customer_id" />
+                <field name="booking_date" />
+                <field name="currency_id" column_invisible="True" />
+                <field name="booking_fee_paid" widget="monetary" />
+                <field name="state" widget="badge"
+                    decoration-info="state == 'draft'"
+                    decoration-warning="state == 'waiting_payment'"
+                    decoration-success="state == 'confirmed'"
+                    decoration-muted="state == 'canceled'" />
+            </tree>
+        </field>
+    </record>
+
+    <!-- Form View: estate.booking -->
+    <record id="estate_booking_view_form" model="ir.ui.view">
+        <field name="name">estate.booking.form</field>
+        <field name="model">estate.booking</field>
+        <field name="arch" type="xml">
+            <form string="Reservasi Properti">
+                <header>
+                    <button name="action_waiting_payment"
+                        type="object"
+                        string="Menunggu Pembayaran"
+                        invisible="state != 'draft'" />
+                    <button name="action_confirm"
+                        type="object"
+                        string="Konfirmasi"
+                        class="oe_highlight"
+                        invisible="state != 'waiting_payment'" />
+                    <button name="action_cancel"
+                        type="object"
+                        string="Batalkan"
+                        invisible="state != 'confirmed'" />
+                    <field name="state" widget="statusbar" statusbar_visible="draft,waiting_payment,confirmed" />
+                </header>
+                <sheet>
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" placeholder="Contoh: BOOK/2026/001" readonly="state != 'draft'" />
+                        </h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="property_id" readonly="state != 'draft'" />
+                            <field name="customer_id" readonly="state != 'draft'" />
+                            <field name="booking_date" readonly="state != 'draft'" />
+                        </group>
+                        <group>
+                            <field name="currency_id" invisible="1" />
+                            <field name="booking_fee_paid" widget="monetary" readonly="state != 'draft'" />
+                            <field name="payment_transaction_id" readonly="1" />
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Jadwal Pembiayaan" name="installments">
+                            <field name="installment_ids" readonly="state == 'canceled'">
+                                <tree editable="bottom" string="Jadwal Cicilan">
+                                    <field name="name" />
+                                    <field name="due_date" />
+                                    <field name="currency_id" column_invisible="True" />
+                                    <field name="amount" widget="monetary" />
+                                    <field name="invoice_id" />
+                                    <field name="state" widget="badge"
+                                        decoration-danger="state == 'late'"
+                                        decoration-success="state == 'paid'"
+                                        decoration-warning="state == 'unpaid'" />
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+</odoo>

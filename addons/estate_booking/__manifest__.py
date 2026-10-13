@@ -18,6 +18,9 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "views/estate_booking_views.xml",
+        "views/estate_installment_views.xml",
+        "views/estate_booking_menus.xml",
     ],
     "application": True,
     "installable": True,

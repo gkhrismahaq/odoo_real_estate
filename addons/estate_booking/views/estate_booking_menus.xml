@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Menu Kategori Level-1 di bawah root menu Manajemen Properti -->
+    <menuitem id="estate_booking_menu_root"
+        name="Reservasi"
+        parent="estate.estate_property_root"
+        sequence="20" />
+
+    <!-- Submenu Daftar Reservasi -->
+    <menuitem id="estate_booking_menu_action"
+        name="Daftar Reservasi"
+        parent="estate_booking_menu_root"
+        action="estate_booking_action"
+        sequence="10" />
+
+    <!-- Submenu Jadwal Cicilan -->
+    <menuitem id="estate_installment_menu_action"
+        name="Jadwal Cicilan"
+        parent="estate_booking_menu_root"
+        action="estate_installment_action"
+        sequence="20" />
+
+</odoo>
