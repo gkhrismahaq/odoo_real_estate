@@ -25,6 +25,7 @@
         "views/portal_property_catalog_templates.xml",
         "views/portal_property_detail_templates.xml",
         "views/portal_booking_checkout_templates.xml",
+        "views/portal_booking_payment_templates.xml",
     ],
     "application": True,
     "installable": True,

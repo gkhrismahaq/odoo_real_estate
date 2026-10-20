@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <!-- Template: Pembayaran Uang Tanda Jadi Properti -->
+    <template id="booking_payment" name="Pembayaran Uang Tanda Jadi">
+        <t t-call="website.layout">
+            <div id="wrap" class="oe_structure oe_empty py-4">
+                <div class="container">
+
+                    <!-- Breadcrumb Navigasi Minimalis -->
+                    <nav aria-label="breadcrumb" class="mb-4">
+                        <ol class="breadcrumb bg-transparent p-0 mb-0 small text-muted">
+                            <li class="breadcrumb-item">
+                                <a href="/" class="text-decoration-none text-muted">Beranda</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a href="/properties" class="text-decoration-none text-muted">Katalog Properti</a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a t-attf-href="/property/#{property.id}" class="text-decoration-none text-muted">
+                                    <t t-esc="property.name" />
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item">
+                                <a t-attf-href="/booking/confirmation/#{booking.id}" class="text-decoration-none text-muted">
+                                    Konfirmasi (<t t-esc="booking.name" />)
+                                </a>
+                            </li>
+                            <li class="breadcrumb-item active text-dark" aria-current="page">
+                                Pembayaran Tanda Jadi
+                            </li>
+                        </ol>
+                    </nav>
+
+                    <!-- Layout 2 Kolom: Detail Transaksi Pembayaran & Ringkasan Unit -->
+                    <div class="row g-5">
+
+                        <!-- Kolom Kiri: Antarmuka Pembayaran & Provider -->
+                        <div class="col-12 col-lg-7">
+                            <div class="mb-4 pb-3 border-bottom">
+                                <h1 class="fw-semibold text-dark h2 mb-1">
+                                    Pembayaran Uang Tanda Jadi
+                                </h1>
+                                <p class="text-muted small mb-0">
+                                    Selesaikan transaksi pembayaran untuk mengunci unit properti pilihan Anda.
+                                </p>
+                            </div>
+
+                            <!-- Pesan Peringatan Galat Jika Terjadi Kendala -->
+                            <div class="alert alert-danger py-2 small mb-4" role="alert" t-if="error">
+                                <i class="fa fa-exclamation-circle me-1" />
+                                <t t-esc="error" />
+                            </div>
+
+                            <!-- Informasi Dokumen & Status Transaksi -->
+                            <div class="card border rounded-3 p-4 mb-4 shadow-sm">
+                                <h6 class="fw-bold text-dark mb-3">Informasi Transaksi Pemesanan</h6>
+
+                                <div class="row g-3 small">
+                                    <div class="col-6 col-sm-4 text-muted">Nomor Reservasi</div>
+                                    <div class="col-6 col-sm-8 text-dark fw-bold font-monospace">
+                                        <t t-esc="booking.name" />
+                                    </div>
+
+                                    <div class="col-6 col-sm-4 text-muted">Nama Pemesan</div>
+                                    <div class="col-6 col-sm-8 text-dark fw-semibold">
+                                        <t t-esc="booking.customer_id.name" />
+                                    </div>
+
+                                    <div class="col-6 col-sm-4 text-muted">Status Reservasi</div>
+                                    <div class="col-6 col-sm-8">
+                                        <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                              t-if="booking.state == 'waiting_payment'">
+                                            Menunggu Pembayaran
+                                        </span>
+                                        <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle"
+                                              t-if="booking.state == 'draft'">
+                                            Draft
+                                        </span>
+                                    </div>
+
+                                    <div class="col-6 col-sm-4 text-muted" t-if="transaction">Referensi Transaksi</div>
+                                    <div class="col-6 col-sm-8 text-dark font-monospace fw-medium" t-if="transaction">
+                                        <t t-esc="transaction.reference" />
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bagian Penyedia Pembayaran (Payment Provider) -->
+                            <div class="mb-4">
+                                <h5 class="fw-semibold text-dark mb-3">Penyedia Pembayaran (Payment Gateway)</h5>
+
+                                <t t-if="providers">
+                                    <div class="d-flex flex-column gap-3">
+                                        <t t-foreach="providers" t-as="prov">
+                                            <div class="border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-center">
+                                                <div>
+                                                    <div class="d-flex align-items-center gap-2 mb-1">
+                                                        <h6 class="fw-bold text-dark mb-0">
+                                                            <t t-esc="prov.name" />
+                                                        </h6>
+                                                        <span class="badge bg-info-subtle text-info border border-info-subtle small"
+                                                              t-if="prov.state == 'test'">
+                                                            Mode Demo / Test
+                                                        </span>
+                                                        <span class="badge bg-success-subtle text-success border border-success-subtle small"
+                                                              t-if="prov.state == 'enabled'">
+                                                            Aktif
+                                                        </span>
+                                                    </div>
+                                                    <p class="text-muted small mb-0">
+                                                        Transaksi diproses langsung melalui gerbang pembayaran resmi Odoo.
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2 small">
+                                                        <i class="fa fa-lock text-success me-1" /> Terenkripsi
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+
+                                    <div class="p-3 mt-3 rounded-2 bg-light border small text-muted">
+                                        <i class="fa fa-info-circle text-primary me-1" />
+                                        Transaksi pembayaran terhubung dengan Odoo Payment Engine. Notifikasi status pelunasan akan divalidasi secara otomatis melalui modul pembayaran.
+                                    </div>
+                                </t>
+
+                                <t t-else="">
+                                    <div class="alert alert-warning small mb-0" role="alert">
+                                        <i class="fa fa-warning me-1" />
+                                        Belum ada penyedia pembayaran aktif yang terkonfigurasi pada modul payment. Silakan aktifkan <strong>Test Provider</strong> melalui menu Pengaturan Odoo.
+                                    </div>
+                                </t>
+                            </div>
+
+                            <!-- Tombol Navigasi -->
+                            <div class="d-flex flex-wrap gap-2 pt-2 border-top">
+                                <a t-attf-href="/booking/confirmation/#{booking.id}" class="btn btn-outline-secondary px-3 py-2 rounded-2 small">
+                                    ← Kembali ke Konfirmasi Reservasi
+                                </a>
+                                <a href="/properties" class="btn btn-link text-muted text-decoration-none px-3 py-2 small">
+                                    Katalog Properti
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Kolom Kanan: Ringkasan Tagihan Uang Tanda Jadi -->
+                        <div class="col-12 col-lg-5">
+                            <div class="card border rounded-3 shadow-sm sticky-top" style="top: 2rem;">
+                                <div class="card-body p-4">
+                                    <h5 class="fw-semibold text-dark mb-3">Ringkasan Tagihan</h5>
+
+                                    <div class="mb-3 pb-3 border-bottom">
+                                        <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+                                            <span t-if="property.property_type_id" class="badge rounded-pill bg-light text-dark border">
+                                                <t t-esc="property.property_type_id.name" />
+                                            </span>
+                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                                Tersedia
+                                            </span>
+                                        </div>
+                                        <h4 class="fw-bold text-dark mb-1">
+                                            <t t-esc="property.name" />
+                                        </h4>
+                                        <div class="text-muted small" t-if="property.postcode">
+                                            <i class="fa fa-map-marker me-1" />
+                                            Kode Pos: <span class="text-dark fw-medium" t-esc="property.postcode" />
+                                        </div>
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <div class="d-flex justify-content-between align-items-center mb-1 small text-muted">
+                                            <span>Harga Penawaran Unit:</span>
+                                            <span class="text-dark fw-medium"
+                                                  t-out="property.expected_price"
+                                                  t-options="{'widget': 'monetary', 'display_currency': booking.currency_id}" />
+                                        </div>
+                                    </div>
+
+                                    <div class="p-3 rounded-2 bg-light border mb-4">
+                                        <div class="d-flex justify-content-between align-items-baseline mb-1">
+                                            <span class="text-muted small fw-semibold">Uang Tanda Jadi:</span>
+                                            <span class="fs-4 fw-bold text-primary"
+                                                  t-out="booking.booking_fee_paid"
+                                                  t-options="{'widget': 'monetary', 'display_currency': booking.currency_id}" />
+                                        </div>
+                                        <div class="text-muted small" style="font-size: 0.85rem;">
+                                            Nominal pembayaran awal untuk mengonfirmasi reservasi unit ini.
+                                        </div>
+                                    </div>
+
+                                    <div class="text-muted small border-top pt-3" style="font-size: 0.825rem;">
+                                        <i class="fa fa-shield text-success me-1" />
+                                        Keamanan transaksi dijamin oleh arsitektur modul pembayaran terpadu Odoo 17.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </t>
+    </template>
+
+</odoo>

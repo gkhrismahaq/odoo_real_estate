@@ -3,3 +3,4 @@
 from . import estate_property
 from . import estate_booking
 from . import estate_installment
+from . import payment_transaction

@@ -185,6 +185,66 @@ class PropertyCatalogController(http.Controller):
         values = {
             "booking": booking_sudo,
             "property": booking_sudo.property_id,
+            "transaction": booking_sudo.payment_transaction_id,
         }
         return request.render("estate_booking.booking_confirmation", values)
+
+    @http.route(
+        ["/booking/pay/<int:booking_id>"],
+        type="http",
+        auth="public",
+        website=True,
+        sitemap=False,
+    )
+    def booking_pay(self, booking_id, provider_id=None, **kwargs):
+        """Menyajikan halaman pembayaran uang tanda jadi pemesanan properti."""
+        booking_sudo = (
+            request.env["estate.booking"]
+            .sudo()
+            .browse(booking_id)
+            .exists()
+        )
+        if not booking_sudo:
+            return request.redirect("/properties")
+
+        # Jika booking sudah terkonfirmasi atau dibatalkan, arahkan ke konfirmasi
+        if booking_sudo.state in ("confirmed", "canceled"):
+            return request.redirect(f"/booking/confirmation/{booking_sudo.id}")
+
+        selected_provider_id = (
+            int(provider_id)
+            if provider_id and str(provider_id).isdigit()
+            else None
+        )
+
+        error_msg = kwargs.get("error")
+        tx_sudo = booking_sudo.payment_transaction_id
+
+        # Inisiasi atau ambil payment.transaction via model layer
+        try:
+            tx_sudo = booking_sudo._create_or_get_payment_transaction(
+                provider_id=selected_provider_id
+            )
+        except Exception as e:
+            error_msg = str(e)
+
+        # Ambil penyedia pembayaran aktif untuk disajikan pada template
+        providers_sudo = (
+            request.env["payment.provider"]
+            .sudo()
+            .search([
+                ("state", "in", ("test", "enabled")),
+                ("company_id", "in", [request.env.company.id, False]),
+            ], order="state desc, id asc")
+        )
+
+        values = {
+            "booking": booking_sudo,
+            "property": booking_sudo.property_id,
+            "transaction": tx_sudo,
+            "providers": providers_sudo,
+            "error": error_msg,
+        }
+        return request.render("estate_booking.booking_payment", values)
+
 
