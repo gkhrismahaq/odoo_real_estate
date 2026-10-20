@@ -242,9 +242,52 @@ class PropertyCatalogController(http.Controller):
             "booking": booking_sudo,
             "property": booking_sudo.property_id,
             "transaction": tx_sudo,
+            "tx_state": tx_sudo.state if tx_sudo else False,
             "providers": providers_sudo,
             "error": error_msg,
         }
         return request.render("estate_booking.booking_payment", values)
+
+    @http.route(
+        ["/booking/pay/simulate/<int:booking_id>"],
+        type="http",
+        auth="public",
+        website=True,
+        methods=["POST"],
+        csrf=True,
+    )
+    def booking_pay_simulate(self, booking_id, **post):
+        """Memproses simulasi callback notifikasi pembayaran (khusus Test Provider)."""
+        booking_sudo = (
+            request.env["estate.booking"]
+            .sudo()
+            .browse(booking_id)
+            .exists()
+        )
+        if not booking_sudo or not booking_sudo.payment_transaction_id:
+            return request.redirect("/properties")
+
+        tx_sudo = booking_sudo.payment_transaction_id
+
+        # Simulasikan payload notifikasi callback dari provider
+        simulated_data = {
+            "reference": tx_sudo.reference,
+            "status": "success",
+            "simulated": True,
+            "simulated_state": "done",
+        }
+
+        # Jalankan pemrosesan notifikasi callback pada payment.transaction
+        tx_sudo._process_notification_data(simulated_data)
+
+        # Ubah status transaksi menjadi 'done' jika belum diset oleh provider
+        if tx_sudo.state != "done":
+            if hasattr(tx_sudo, "_set_done"):
+                tx_sudo._set_done()
+            else:
+                tx_sudo.write({"state": "done"})
+
+        return request.redirect(f"/booking/pay/{booking_sudo.id}")
+
 
 

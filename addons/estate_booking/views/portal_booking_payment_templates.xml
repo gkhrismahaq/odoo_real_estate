@@ -67,14 +67,18 @@
                                         <t t-esc="booking.customer_id.name" />
                                     </div>
 
-                                    <div class="col-6 col-sm-4 text-muted">Status Reservasi</div>
+                                    <div class="col-6 col-sm-4 text-muted">Status Transaksi</div>
                                     <div class="col-6 col-sm-8">
+                                        <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle"
+                                              t-if="transaction and transaction.state == 'done'">
+                                            <i class="fa fa-check me-1" /> Terverifikasi Sukses
+                                        </span>
                                         <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle"
-                                              t-if="booking.state == 'waiting_payment'">
+                                              t-elif="booking.state == 'waiting_payment'">
                                             Menunggu Pembayaran
                                         </span>
                                         <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle"
-                                              t-if="booking.state == 'draft'">
+                                              t-elif="booking.state == 'draft'">
                                             Draft
                                         </span>
                                     </div>
@@ -86,36 +90,97 @@
                                 </div>
                             </div>
 
+                            <!-- Kartu Umpan Balik Status Transaksi (Real-time Feedback) -->
+                            <div class="card border-success bg-success-subtle text-success-emphasis rounded-3 p-4 mb-4 shadow-sm"
+                                 t-if="transaction and transaction.state == 'done'">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="fs-1 text-success">
+                                        <i class="fa fa-check-circle" />
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-success">Pembayaran Sukses Terverifikasi</h5>
+                                        <p class="mb-0 small text-success-emphasis">
+                                            Sinyal konfirmasi pembayaran uang tanda jadi telah divalidasi oleh Payment Gateway. Transaksi Anda tercatat sah.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-warning bg-warning-subtle text-warning-emphasis rounded-3 p-4 mb-4 shadow-sm"
+                                 t-if="transaction and transaction.state == 'pending'">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="fs-1 text-warning">
+                                        <i class="fa fa-clock-o" />
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-warning-emphasis">Menunggu Konfirmasi Pembayaran</h5>
+                                        <p class="mb-0 small">
+                                            Transaksi Anda sedang dalam proses verifikasi oleh sistem pembayaran digital.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card border-danger bg-danger-subtle text-danger-emphasis rounded-3 p-4 mb-4 shadow-sm"
+                                 t-if="transaction and transaction.state in ('cancel', 'error')">
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="fs-1 text-danger">
+                                        <i class="fa fa-times-circle" />
+                                    </div>
+                                    <div>
+                                        <h5 class="fw-bold mb-1 text-danger">Pembayaran Dibatalkan atau Gagal</h5>
+                                        <p class="mb-0 small" t-if="transaction.state_message">
+                                            <t t-esc="transaction.state_message" />
+                                        </p>
+                                        <p class="mb-0 small" t-else="">
+                                            Transaksi pembayaran tanda jadi tidak berhasil diproses. Anda dapat mencoba kembali.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Bagian Penyedia Pembayaran (Payment Provider) -->
-                            <div class="mb-4">
+                            <div class="mb-4" t-if="not transaction or transaction.state != 'done'">
                                 <h5 class="fw-semibold text-dark mb-3">Penyedia Pembayaran (Payment Gateway)</h5>
 
                                 <t t-if="providers">
                                     <div class="d-flex flex-column gap-3">
                                         <t t-foreach="providers" t-as="prov">
-                                            <div class="border rounded-3 p-3 bg-white shadow-sm d-flex justify-content-between align-items-center">
-                                                <div>
-                                                    <div class="d-flex align-items-center gap-2 mb-1">
-                                                        <h6 class="fw-bold text-dark mb-0">
-                                                            <t t-esc="prov.name" />
-                                                        </h6>
-                                                        <span class="badge bg-info-subtle text-info border border-info-subtle small"
-                                                              t-if="prov.state == 'test'">
-                                                            Mode Demo / Test
-                                                        </span>
-                                                        <span class="badge bg-success-subtle text-success border border-success-subtle small"
-                                                              t-if="prov.state == 'enabled'">
-                                                            Aktif
+                                            <div class="border rounded-3 p-3 bg-white shadow-sm">
+                                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                                    <div>
+                                                        <div class="d-flex align-items-center gap-2 mb-1">
+                                                            <h6 class="fw-bold text-dark mb-0">
+                                                                <t t-esc="prov.name" />
+                                                            </h6>
+                                                            <span class="badge bg-info-subtle text-info border border-info-subtle small"
+                                                                  t-if="prov.state == 'test'">
+                                                                Mode Demo / Test
+                                                            </span>
+                                                            <span class="badge bg-success-subtle text-success border border-success-subtle small"
+                                                                  t-if="prov.state == 'enabled'">
+                                                                Aktif
+                                                            </span>
+                                                        </div>
+                                                        <p class="text-muted small mb-0">
+                                                            Transaksi diproses langsung melalui gerbang pembayaran resmi Odoo.
+                                                        </p>
+                                                    </div>
+                                                    <div>
+                                                        <span class="badge rounded-pill bg-light text-dark border px-3 py-2 small">
+                                                            <i class="fa fa-lock text-success me-1" /> Terenkripsi
                                                         </span>
                                                     </div>
-                                                    <p class="text-muted small mb-0">
-                                                        Transaksi diproses langsung melalui gerbang pembayaran resmi Odoo.
-                                                    </p>
                                                 </div>
-                                                <div>
-                                                    <span class="badge rounded-pill bg-light text-dark border px-3 py-2 small">
-                                                        <i class="fa fa-lock text-success me-1" /> Terenkripsi
-                                                    </span>
+
+                                                <!-- Tombol Simulasi Pembayaran untuk Mode Test -->
+                                                <div class="pt-2 border-top" t-if="prov.state == 'test'">
+                                                    <form t-attf-action="/booking/pay/simulate/#{booking.id}" method="post">
+                                                        <input type="hidden" name="csrf_token" t-att-value="request.csrf_token()" />
+                                                        <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold rounded-2 shadow-sm">
+                                                            <i class="fa fa-bolt me-1" /> Simulasikan Pembayaran Sukses (Test Callback)
+                                                        </button>
+                                                    </form>
                                                 </div>
                                             </div>
                                         </t>
@@ -133,6 +198,14 @@
                                         Belum ada penyedia pembayaran aktif yang terkonfigurasi pada modul payment. Silakan aktifkan <strong>Test Provider</strong> melalui menu Pengaturan Odoo.
                                     </div>
                                 </t>
+                            </div>
+
+                            <!-- Tombol Tindakan Setelah Pembayaran Selesai -->
+                            <div class="mb-4" t-if="transaction and transaction.state == 'done'">
+                                <a t-attf-href="/booking/confirmation/#{booking.id}"
+                                   class="btn btn-success w-100 py-2 fw-semibold rounded-2 shadow-sm mb-3">
+                                    <i class="fa fa-file-text-o me-1" /> Lihat Rincian Reservasi
+                                </a>
                             </div>
 
                             <!-- Tombol Navigasi -->
