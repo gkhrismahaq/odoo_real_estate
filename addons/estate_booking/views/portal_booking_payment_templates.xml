@@ -67,11 +67,11 @@
                                         <t t-esc="booking.customer_id.name" />
                                     </div>
 
-                                    <div class="col-6 col-sm-4 text-muted">Status Transaksi</div>
+                                    <div class="col-6 col-sm-4 text-muted">Status Dokumen &amp; Transaksi</div>
                                     <div class="col-6 col-sm-8">
                                         <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle"
-                                              t-if="transaction and transaction.state == 'done'">
-                                            <i class="fa fa-check me-1" /> Terverifikasi Sukses
+                                              t-if="booking.state == 'confirmed' or (transaction and transaction.state == 'done')">
+                                            <i class="fa fa-check me-1" /> Terkonfirmasi &amp; Lunas
                                         </span>
                                         <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle"
                                               t-elif="booking.state == 'waiting_payment'">
@@ -80,6 +80,10 @@
                                         <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle"
                                               t-elif="booking.state == 'draft'">
                                             Draft
+                                        </span>
+                                        <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle"
+                                              t-elif="booking.state == 'canceled'">
+                                            Dibatalkan
                                         </span>
                                     </div>
 
@@ -92,15 +96,15 @@
 
                             <!-- Kartu Umpan Balik Status Transaksi (Real-time Feedback) -->
                             <div class="card border-success bg-success-subtle text-success-emphasis rounded-3 p-4 mb-4 shadow-sm"
-                                 t-if="transaction and transaction.state == 'done'">
+                                 t-if="booking.state == 'confirmed' or (transaction and transaction.state == 'done')">
                                 <div class="d-flex align-items-center gap-3">
                                     <div class="fs-1 text-success">
                                         <i class="fa fa-check-circle" />
                                     </div>
                                     <div>
-                                        <h5 class="fw-bold mb-1 text-success">Pembayaran Sukses Terverifikasi</h5>
+                                        <h5 class="fw-bold mb-1 text-success">Pembayaran Sukses &amp; Reservasi Terkonfirmasi</h5>
                                         <p class="mb-0 small text-success-emphasis">
-                                            Sinyal konfirmasi pembayaran uang tanda jadi telah divalidasi oleh Payment Gateway. Transaksi Anda tercatat sah.
+                                            Sinyal konfirmasi pembayaran uang tanda jadi telah divalidasi oleh Payment Gateway. Pemesanan unit properti <strong><t t-esc="property.name" /></strong> kini resmi berstatus <strong>Terkonfirmasi</strong> dan ketersediaan unit telah dikunci (<em>reserved</em>).
                                         </p>
                                     </div>
                                 </div>
@@ -140,7 +144,7 @@
                             </div>
 
                             <!-- Bagian Penyedia Pembayaran (Payment Provider) -->
-                            <div class="mb-4" t-if="not transaction or transaction.state != 'done'">
+                            <div class="mb-4" t-if="booking.state != 'confirmed' and (not transaction or transaction.state != 'done')">
                                 <h5 class="fw-semibold text-dark mb-3">Penyedia Pembayaran (Payment Gateway)</h5>
 
                                 <t t-if="providers">
@@ -200,12 +204,29 @@
                                 </t>
                             </div>
 
-                            <!-- Tombol Tindakan Setelah Pembayaran Selesai -->
-                            <div class="mb-4" t-if="transaction and transaction.state == 'done'">
-                                <a t-attf-href="/booking/confirmation/#{booking.id}"
-                                   class="btn btn-success w-100 py-2 fw-semibold rounded-2 shadow-sm mb-3">
-                                    <i class="fa fa-file-text-o me-1" /> Lihat Rincian Reservasi
-                                </a>
+                            <!-- Instruksi Tahap Selanjutnya & Tautan Konfirmasi Pasca-Pembayaran -->
+                            <div class="card border-0 bg-light rounded-3 p-4 mb-4 shadow-sm"
+                                 t-if="booking.state == 'confirmed' or (transaction and transaction.state == 'done')">
+                                <div class="d-flex gap-3 align-items-start">
+                                    <div class="fs-4 text-primary">
+                                        <i class="fa fa-info-circle" />
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <h6 class="fw-bold text-dark mb-1">Tahap Selanjutnya</h6>
+                                        <p class="small text-muted mb-3">
+                                            Pemesanan Anda telah berstatus Terkonfirmasi dan unit telah terkunci dari katalog publik. Dokumen bukti reservasi resmi Anda dapat diakses pada halaman konfirmasi. Tim representatif kami akan segera menghubungi Anda untuk koordinasi kelengkapan berkas dan penjadwalan akad pembiayaan.
+                                        </p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            <a t-attf-href="/booking/confirmation/#{booking.id}"
+                                               class="btn btn-success px-4 py-2 fw-semibold rounded-2 shadow-sm">
+                                                <i class="fa fa-file-text-o me-1" /> Buka Halaman Konfirmasi Dokumen
+                                            </a>
+                                            <a href="/properties" class="btn btn-outline-secondary px-3 py-2 rounded-2">
+                                                Kembali ke Katalog
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
 
                             <!-- Tombol Navigasi -->
@@ -230,7 +251,12 @@
                                             <span t-if="property.property_type_id" class="badge rounded-pill bg-light text-dark border">
                                                 <t t-esc="property.property_type_id.name" />
                                             </span>
-                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                                  t-if="property.status == 'reserved' or booking.state == 'confirmed'">
+                                                <i class="fa fa-lock me-1" /> Dipesan (Terkunci)
+                                            </span>
+                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle"
+                                                  t-else="">
                                                 Tersedia
                                             </span>
                                         </div>

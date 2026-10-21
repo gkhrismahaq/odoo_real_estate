@@ -108,8 +108,13 @@
                                             <span t-if="property.property_type_id" class="badge rounded-pill bg-light text-dark border">
                                                 <t t-esc="property.property_type_id.name" />
                                             </span>
-                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle">
+                                            <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle"
+                                                  t-if="property.status == 'new'">
                                                 Tersedia
+                                            </span>
+                                            <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                                  t-elif="property.status == 'reserved'">
+                                                <i class="fa fa-lock me-1" /> Dipesan
                                             </span>
                                         </div>
                                         <h4 class="fw-bold text-dark mb-1">
@@ -166,20 +171,71 @@
 
                             <!-- Kartu Status Konfirmasi -->
                             <div class="card border rounded-3 shadow-sm p-4 p-md-5 text-center mb-4">
-                                <div class="text-success mb-3">
-                                    <i class="fa fa-check-circle-o fa-4x" />
-                                </div>
-                                <h2 class="fw-semibold text-dark mb-2">
-                                    Reservasi Berhasil Diterbitkan
-                                </h2>
-                                <p class="text-muted small mb-4">
-                                    Dokumen pemesanan Anda telah terdaftar dalam status Draft di sistem Estate Booking.
-                                </p>
+                                <t t-if="booking.state == 'confirmed'">
+                                    <div class="text-success mb-3">
+                                        <i class="fa fa-check-circle fa-4x" />
+                                    </div>
+                                    <h2 class="fw-semibold text-dark mb-2">
+                                        Pemesanan Berhasil Dikonfirmasi
+                                    </h2>
+                                    <p class="text-muted small mb-4">
+                                        Pembayaran uang tanda jadi telah terverifikasi sah. Unit properti telah resmi terkunci untuk Anda.
+                                    </p>
+                                </t>
+                                <t t-elif="booking.state == 'waiting_payment'">
+                                    <div class="text-warning mb-3">
+                                        <i class="fa fa-clock-o fa-4x" />
+                                    </div>
+                                    <h2 class="fw-semibold text-dark mb-2">
+                                        Menunggu Pembayaran Tanda Jadi
+                                    </h2>
+                                    <p class="text-muted small mb-4">
+                                        Dokumen pemesanan Anda telah terdaftar. Silakan selesaikan pembayaran tanda jadi untuk mengunci unit.
+                                    </p>
+                                </t>
+                                <t t-elif="booking.state == 'canceled'">
+                                    <div class="text-danger mb-3">
+                                        <i class="fa fa-ban fa-4x" />
+                                    </div>
+                                    <h2 class="fw-semibold text-dark mb-2">
+                                        Pemesanan Dibatalkan
+                                    </h2>
+                                    <p class="text-muted small mb-4">
+                                        Dokumen reservasi unit properti ini telah berstatus dibatalkan.
+                                    </p>
+                                </t>
+                                <t t-else="">
+                                    <div class="text-success mb-3">
+                                        <i class="fa fa-check-circle-o fa-4x" />
+                                    </div>
+                                    <h2 class="fw-semibold text-dark mb-2">
+                                        Reservasi Berhasil Diterbitkan
+                                    </h2>
+                                    <p class="text-muted small mb-4">
+                                        Dokumen pemesanan Anda telah terdaftar dalam status Draft di sistem Estate Booking.
+                                    </p>
+                                </t>
 
                                 <div class="d-inline-flex flex-wrap align-items-center justify-content-center gap-2 p-2 px-3 bg-light rounded-pill border mx-auto mb-4">
                                     <span class="text-muted small">Nomor Referensi:</span>
                                     <span class="fw-bold text-dark font-monospace">
                                         <t t-esc="booking.name" />
+                                    </span>
+                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle small px-2 py-1"
+                                          t-if="booking.state == 'confirmed'">
+                                        <i class="fa fa-check me-1" /> Terkonfirmasi
+                                    </span>
+                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle small px-2 py-1"
+                                          t-elif="booking.state == 'waiting_payment'">
+                                        <i class="fa fa-clock-o me-1" /> Menunggu Pembayaran
+                                    </span>
+                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle small px-2 py-1"
+                                          t-elif="booking.state == 'draft'">
+                                        Draft
+                                    </span>
+                                    <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle small px-2 py-1"
+                                          t-elif="booking.state == 'canceled'">
+                                        Dibatalkan
                                     </span>
                                 </div>
 
@@ -192,6 +248,33 @@
                                                 <td class="text-muted py-2 w-50">Unit Properti</td>
                                                 <td class="text-dark fw-semibold py-2">
                                                     <t t-esc="property.name" />
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom">
+                                                <td class="text-muted py-2">Status Pemesanan</td>
+                                                <td class="py-2">
+                                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle"
+                                                          t-if="booking.state == 'confirmed'">
+                                                        <i class="fa fa-check me-1" /> Terkonfirmasi
+                                                    </span>
+                                                    <span class="badge rounded-pill bg-warning-subtle text-warning-emphasis border border-warning-subtle"
+                                                          t-elif="booking.state == 'waiting_payment'">
+                                                        Menunggu Pembayaran
+                                                    </span>
+                                                    <span class="badge rounded-pill bg-secondary-subtle text-secondary border border-secondary-subtle"
+                                                          t-elif="booking.state == 'draft'">
+                                                        Draft
+                                                    </span>
+                                                    <span class="badge rounded-pill bg-danger-subtle text-danger border border-danger-subtle"
+                                                          t-elif="booking.state == 'canceled'">
+                                                        Dibatalkan
+                                                    </span>
+                                                </td>
+                                            </tr>
+                                            <tr class="border-bottom" t-if="booking.state == 'confirmed' or property.status == 'reserved'">
+                                                <td class="text-muted py-2">Status Ketersediaan Unit</td>
+                                                <td class="text-success fw-semibold py-2">
+                                                    <i class="fa fa-lock me-1" /> Terkunci (Dipesan)
                                                 </td>
                                             </tr>
                                             <tr class="border-bottom">
@@ -229,13 +312,25 @@
                                                 <td class="text-muted py-2">Referensi Pembayaran</td>
                                                 <td class="text-dark font-monospace small py-2">
                                                     <t t-esc="transaction.reference" />
+                                                    <span class="badge rounded-pill bg-success-subtle text-success border border-success-subtle ms-2"
+                                                          t-if="transaction.state == 'done'">
+                                                        Lunas
+                                                    </span>
                                                 </td>
                                             </tr>
                                         </tbody>
                                     </table>
                                 </div>
 
-                                <div class="p-3 rounded-2 bg-light border text-start small mb-4">
+                                <div class="p-3 rounded-2 bg-light border text-start small mb-4" t-if="booking.state == 'confirmed'">
+                                    <div class="fw-semibold text-success mb-1">
+                                        <i class="fa fa-shield me-1" /> Unit Resmi Diamankan
+                                    </div>
+                                    <div class="text-muted">
+                                        Pembayaran tanda jadi telah divalidasi dan unit properti telah terkunci (<em>reserved</em>) untuk Anda. Tim perwakilan kami akan segera menghubungi Anda untuk tahap verifikasi berkas dan penandatanganan akad.
+                                    </div>
+                                </div>
+                                <div class="p-3 rounded-2 bg-light border text-start small mb-4" t-elif="booking.state in ('draft', 'waiting_payment')">
                                     <div class="fw-semibold text-dark mb-1">
                                         <i class="fa fa-info-circle text-primary me-1" /> Langkah Selanjutnya
                                     </div>
@@ -245,9 +340,16 @@
                                 </div>
 
                                 <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
-                                    <a t-attf-href="/booking/pay/#{booking.id}" class="btn btn-primary px-4 py-2 rounded-2 fw-semibold shadow-sm">
-                                        <i class="fa fa-credit-card me-1" /> Lanjutkan ke Pembayaran
-                                    </a>
+                                    <t t-if="booking.state in ('draft', 'waiting_payment')">
+                                        <a t-attf-href="/booking/pay/#{booking.id}" class="btn btn-primary px-4 py-2 rounded-2 fw-semibold shadow-sm">
+                                            <i class="fa fa-credit-card me-1" /> Lanjutkan ke Pembayaran
+                                        </a>
+                                    </t>
+                                    <t t-elif="booking.state == 'confirmed'">
+                                        <a t-attf-href="/booking/pay/#{booking.id}" class="btn btn-outline-success px-4 py-2 rounded-2 fw-semibold">
+                                            <i class="fa fa-check-circle me-1" /> Rincian Pembayaran
+                                        </a>
+                                    </t>
                                     <a href="/properties" class="btn btn-outline-secondary px-4 py-2 rounded-2">
                                         Kembali ke Katalog
                                     </a>

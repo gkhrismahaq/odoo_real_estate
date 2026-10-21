@@ -75,3 +75,25 @@ class PaymentTransaction(models.Model):
                 tx.state,
             )
 
+            # Transisi otomatis status pemesanan ke 'confirmed' saat transaksi berstatus 'done'
+            if tx.state == "done" and booking.state != "confirmed":
+                booking.action_confirm()
+                _logger.info(
+                    "Konfirmasi otomatis booking %s berhasil dipicu dari notifikasi pembayaran (Tx: %s).",
+                    booking.name,
+                    tx.reference,
+                )
+
+    def _set_done(self, **kwargs):
+        """Picu konfirmasi dokumen booking secara otomatis saat status transaksi bertransisi menjadi 'done'."""
+        res = super()._set_done(**kwargs)
+        for tx in self:
+            if tx.booking_id and tx.booking_id.state != "confirmed":
+                tx.booking_id.action_confirm()
+                _logger.info(
+                    "Konfirmasi otomatis booking %s dipicu melalui _set_done (Tx: %s).",
+                    tx.booking_id.name,
+                    tx.reference,
+                )
+        return res
+

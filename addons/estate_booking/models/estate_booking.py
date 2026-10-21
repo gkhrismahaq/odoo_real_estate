@@ -1,7 +1,11 @@
 # -*- coding: utf-8 -*-
 
+import logging
+
 from odoo import _, fields, models
 from odoo.exceptions import UserError
+
+_logger = logging.getLogger(__name__)
 
 
 class EstateBooking(models.Model):
@@ -144,11 +148,32 @@ class EstateBooking(models.Model):
 
     def action_confirm(self):
         for record in self:
+            if record.state == "confirmed":
+                # Idempotency: Jika reservasi sudah confirmed, pastikan unit properti tetap berstatus reserved
+                if record.property_id and record.property_id.status != "reserved":
+                    record.property_id.status = "reserved"
+                continue
+
             if record.state != "waiting_payment":
                 raise UserError(
                     _("Hanya reservasi berstatus Menunggu Pembayaran yang dapat dikonfirmasi.")
                 )
+
+            # Validasi ketersediaan unit properti sebelum mengunci status
+            if record.property_id:
+                if record.property_id.status in ("sold", "canceled"):
+                    raise UserError(
+                        _("Unit properti '%s' tidak dapat dipesan karena berstatus '%s'.")
+                        % (record.property_id.name, record.property_id.status)
+                    )
+                record.property_id.status = "reserved"
+
             record.state = "confirmed"
+            _logger.info(
+                "Reservasi %s berhasil dikonfirmasi. Unit properti %s beralih ke status 'reserved'.",
+                record.name,
+                record.property_id.name if record.property_id else "-",
+            )
         return True
 
     def action_cancel(self):
@@ -158,4 +183,19 @@ class EstateBooking(models.Model):
                     _("Hanya reservasi berstatus Terkonfirmasi yang dapat dibatalkan.")
                 )
             record.state = "canceled"
+            _logger.info("Reservasi %s telah dibatalkan.", record.name)
+
+            if record.property_id:
+                # Verifikasi apakah terdapat reservasi terkonfirmasi aktif lainnya untuk unit ini
+                other_confirmed_count = self.search_count([
+                    ("id", "!=", record.id),
+                    ("property_id", "=", record.property_id.id),
+                    ("state", "=", "confirmed"),
+                ])
+                if other_confirmed_count == 0 and record.property_id.status == "reserved":
+                    record.property_id.status = "new"
+                    _logger.info(
+                        "Status unit properti %s dikembalikan menjadi 'new' karena tidak ada reservasi aktif lainnya.",
+                        record.property_id.name,
+                    )
         return True

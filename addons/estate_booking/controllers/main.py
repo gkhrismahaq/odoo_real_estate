@@ -207,8 +207,8 @@ class PropertyCatalogController(http.Controller):
         if not booking_sudo:
             return request.redirect("/properties")
 
-        # Jika booking sudah terkonfirmasi atau dibatalkan, arahkan ke konfirmasi
-        if booking_sudo.state in ("confirmed", "canceled"):
+        # Jika booking sudah dibatalkan, arahkan ke konfirmasi
+        if booking_sudo.state == "canceled":
             return request.redirect(f"/booking/confirmation/{booking_sudo.id}")
 
         selected_provider_id = (
@@ -220,13 +220,14 @@ class PropertyCatalogController(http.Controller):
         error_msg = kwargs.get("error")
         tx_sudo = booking_sudo.payment_transaction_id
 
-        # Inisiasi atau ambil payment.transaction via model layer
-        try:
-            tx_sudo = booking_sudo._create_or_get_payment_transaction(
-                provider_id=selected_provider_id
-            )
-        except Exception as e:
-            error_msg = str(e)
+        # Inisiasi atau ambil payment.transaction via model layer (jika belum terkonfirmasi)
+        if booking_sudo.state not in ("confirmed", "canceled"):
+            try:
+                tx_sudo = booking_sudo._create_or_get_payment_transaction(
+                    provider_id=selected_provider_id
+                )
+            except Exception as e:
+                error_msg = str(e)
 
         # Ambil penyedia pembayaran aktif untuk disajikan pada template
         providers_sudo = (
@@ -286,6 +287,10 @@ class PropertyCatalogController(http.Controller):
                 tx_sudo._set_done()
             else:
                 tx_sudo.write({"state": "done"})
+
+        # Pastikan dokumen reservasi terkonfirmasi secara konsisten
+        if booking_sudo.state != "confirmed":
+            booking_sudo.action_confirm()
 
         return request.redirect(f"/booking/pay/{booking_sudo.id}")
 
