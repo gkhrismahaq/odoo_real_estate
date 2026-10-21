@@ -50,6 +50,8 @@
                 <field name="booking_date" />
                 <field name="currency_id" column_invisible="True" />
                 <field name="booking_fee_paid" widget="monetary" />
+                <field name="installment_term" optional="hide" />
+                <field name="remaining_amount" widget="monetary" optional="show" />
                 <field name="state" widget="badge"
                     decoration-info="state == 'draft'"
                     decoration-warning="state == 'waiting_payment'"
@@ -75,6 +77,10 @@
                         string="Konfirmasi"
                         class="oe_highlight"
                         invisible="state != 'waiting_payment'" />
+                    <button name="action_generate_installments"
+                        type="object"
+                        string="Buat Jadwal Cicilan"
+                        invisible="state not in ('draft', 'confirmed')" />
                     <button name="action_cancel"
                         type="object"
                         string="Batalkan"
@@ -88,14 +94,16 @@
                         </h1>
                     </div>
                     <group>
-                        <group>
+                        <group string="Informasi Reservasi">
                             <field name="property_id" readonly="state != 'draft'" />
                             <field name="customer_id" readonly="state != 'draft'" />
                             <field name="booking_date" readonly="state != 'draft'" />
                         </group>
-                        <group>
+                        <group string="Informasi Pembayaran">
                             <field name="currency_id" invisible="1" />
                             <field name="booking_fee_paid" widget="monetary" readonly="state != 'draft'" />
+                            <field name="installment_term" readonly="state == 'canceled'" />
+                            <field name="remaining_amount" widget="monetary" readonly="1" />
                             <field name="payment_transaction_id" readonly="1" />
                         </group>
                     </group>
