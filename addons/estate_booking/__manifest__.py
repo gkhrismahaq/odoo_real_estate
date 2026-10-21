@@ -18,6 +18,7 @@
     "data": [
         "security/security.xml",
         "security/ir.model.access.csv",
+        "data/estate_installment_cron.xml",
         "views/estate_property_views.xml",
         "views/estate_booking_views.xml",
         "views/estate_installment_views.xml",

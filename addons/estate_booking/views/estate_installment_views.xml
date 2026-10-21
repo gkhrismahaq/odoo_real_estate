@@ -52,6 +52,11 @@
                     decoration-danger="state == 'late'"
                     decoration-success="state == 'paid'"
                     decoration-warning="state == 'unpaid'" />
+                <button name="action_create_invoice"
+                    type="object"
+                    string="Terbitkan Faktur"
+                    icon="fa-file-text-o"
+                    invisible="invoice_id or state == 'paid'" />
             </tree>
         </field>
     </record>
@@ -62,25 +67,40 @@
         <field name="model">estate.installment</field>
         <field name="arch" type="xml">
             <form string="Jadwal Cicilan">
+                <header>
+                    <button name="action_create_invoice"
+                        type="object"
+                        string="Terbitkan Faktur"
+                        class="oe_highlight"
+                        invisible="invoice_id or state == 'paid'" />
+                    <field name="state" widget="statusbar" statusbar_visible="unpaid,paid,late" />
+                </header>
                 <sheet>
+                    <div class="oe_button_box" name="button_box">
+                        <button name="action_view_invoice"
+                            type="object"
+                            class="oe_stat_button"
+                            icon="fa-pencil-square-o"
+                            invisible="not invoice_id">
+                            <div class="o_stat_info">
+                                <span class="o_stat_text">Faktur</span>
+                            </div>
+                        </button>
+                    </div>
                     <div class="oe_title">
                         <h1>
                             <field name="name" placeholder="Contoh: Cicilan Bulan 1" />
                         </h1>
                     </div>
                     <group>
-                        <group>
+                        <group string="Informasi Pemesanan">
                             <field name="booking_id" />
                             <field name="due_date" />
                         </group>
-                        <group>
+                        <group string="Informasi Penagihan">
                             <field name="currency_id" invisible="1" />
                             <field name="amount" widget="monetary" />
                             <field name="invoice_id" />
-                            <field name="state" widget="badge"
-                                decoration-danger="state == 'late'"
-                                decoration-success="state == 'paid'"
-                                decoration-warning="state == 'unpaid'" />
                         </group>
                     </group>
                 </sheet>

@@ -120,6 +120,11 @@
                                         decoration-danger="state == 'late'"
                                         decoration-success="state == 'paid'"
                                         decoration-warning="state == 'unpaid'" />
+                                    <button name="action_create_invoice"
+                                        type="object"
+                                        string="Terbitkan Faktur"
+                                        icon="fa-file-text-o"
+                                        invisible="invoice_id or state == 'paid'" />
                                 </tree>
                             </field>
                         </page>
