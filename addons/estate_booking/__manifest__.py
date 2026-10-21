@@ -14,6 +14,7 @@
         "website",
         "payment",
         "account",
+        "portal",
     ],
     "data": [
         "security/security.xml",
@@ -23,6 +24,7 @@
         "views/estate_booking_views.xml",
         "views/estate_installment_views.xml",
         "views/estate_booking_menus.xml",
+        "views/portal_estate_booking_templates.xml",
         "views/portal_property_catalog_templates.xml",
         "views/portal_property_detail_templates.xml",
         "views/portal_booking_checkout_templates.xml",
