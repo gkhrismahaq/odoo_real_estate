@@ -9,3 +9,4 @@ class EstatePropertyTags(models.Model):
     ]
 
     name = fields.Char(string="Nama", required=True)
+    color = fields.Integer(string="Warna")
