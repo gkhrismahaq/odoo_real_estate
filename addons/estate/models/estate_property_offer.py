@@ -28,6 +28,13 @@ class EstatePropertyOffer(models.Model):
         string="Jatuh Tempo",
     )
 
+    property_type_id = fields.Many2one(
+        "estate.property.type",
+        string="Tipe Properti",
+        related="property_id.property_type_id",
+        store=True,
+    )
+
     @api.depends("create_date", "validity")
     def _compute_date_deadline(self):
         for record in self:

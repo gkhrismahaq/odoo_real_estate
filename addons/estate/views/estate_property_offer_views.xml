@@ -4,6 +4,7 @@
         <field name="name">Penawaran Properti</field>
         <field name="res_model">estate.property.offer</field>
         <field name="view_mode">tree,form</field>
+        <field name="domain">[('property_type_id', '=', active_id)]</field>
     </record>
 
     <!-- Tree/List -->
@@ -17,6 +18,7 @@
                 decoration-success="status == 'accepted'">
                 <field name="price" />
                 <field name="partner_id" />
+                <field name="property_type_id" />
                 <field name="validity" />
                 <field name="date_deadline" />
                 <button name="action_accept" type="object" title="Terima" icon="fa-check"
