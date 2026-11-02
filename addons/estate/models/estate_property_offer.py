@@ -68,3 +68,19 @@ class EstatePropertyOffer(models.Model):
     def action_refuse(self):
         for record in self:
             record.status = "refused"
+
+    @api.model_create_multi
+    def create(self, vals_list):
+        for vals in vals_list:
+            property_record = self.env["estate.property"].browse(vals["property_id"])
+
+            if property_record.offer_ids:
+                max_offer = max(property_record.offer_ids.mapped("price"))
+                if vals.get("price", 0) <= max_offer:
+                    raise UserError(
+                        f"Nominal penawaran harus lebih tinggi dari penawaran yang sudah ada (Penawaran tertinggi saat ini: Rp {max_offer:,.0f})!"
+                    )
+
+            property_record.status = "offer_received"
+
+        return super().create(vals_list)

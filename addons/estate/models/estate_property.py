@@ -7,6 +7,11 @@ from dateutil.relativedelta import relativedelta
 class EstateProperty(models.Model):
     _name = "estate.property"
     _description = "Estate Property"
+    _inherit = ["mail.thread", "mail.activity.mixin"]
+    status = fields.Selection(
+        ...,
+        tracking=True,
+    )
     _order = "id desc"
     _sql_constraints = [
         (
@@ -133,3 +138,11 @@ class EstateProperty(models.Model):
                 raise UserError("Properti yang sudah terjual tidak bisa dibatalkan")
             record.status = "canceled"
         return True
+
+    @api.ondelete(at_uninstall=False)
+    def _unlink_if_new_or_canceled(self):
+        for record in self:
+            if record.status not in ("new", "canceled"):
+                raise UserError(
+                    "Anda hanya dapat menghapus properti yang berstatus 'Baru' atau 'Dibatalkan'"
+                )
