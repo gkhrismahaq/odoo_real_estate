@@ -4,6 +4,7 @@
         <field name="name">Daftar Properti</field>
         <field name="res_model">estate.property</field>
         <field name="view_mode">tree,form</field>
+        <field name="context">{'search_default_available': 1}</field>
     </record>
 
     <!-- Search & Filter -->
@@ -17,9 +18,9 @@
                 <field name="postcode" />
                 <field name="expected_price" />
                 <field name="bedrooms" />
-                <field name="living_area" />
+                <field name="living_area" filter_domain="[('living_area', '>=', self)]" />
                 <field name="facades" />
-                <filter name="status" string="Ketersediaan"
+                <filter name="available" string="Tersedia"
                     domain="[('status', 'in', ['new', 'offer_received'])]" />
                 <filter name="group_by_postcode" string="Grup by Kode Pos"
                     context="{'group_by':'postcode'}" />
