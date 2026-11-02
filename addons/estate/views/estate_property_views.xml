@@ -32,7 +32,10 @@
         <field name="name">estate.property.tree</field>
         <field name="model">estate.property</field>
         <field name="arch" type="xml">
-            <tree string="Properti">
+            <tree string="Properti"
+                decoration-success="status in ('offer_received', 'offer_accepted')"
+                decoration-bf="status == 'offer_accepted'"
+                decoration-muted="status == 'sold'">
                 <field name="name" />
                 <field name="property_type_id" />
                 <field name="postcode" />
@@ -53,8 +56,10 @@
         <field name="arch" type="xml">
             <form string="Properti">
                 <header>
-                    <button name="action_sold" type="object" string="Terjual" />
-                    <button name="action_cancel" type="object" string="Batalkan" />
+                    <button name="action_sold" type="object" string="Terjual"
+                        invisible="status in ('sold', 'canceled')" />
+                    <button name="action_cancel" type="object" string="Batalkan"
+                        invisible="status in ('sold', 'canceled')" />
                     <field name="status" widget="statusbar"
                         statusbar_visible="new,offer_received,offer_accepted,sold" />
                 </header>
@@ -101,7 +106,8 @@
                                 </group>
                                 <group>
                                     <field name="garden" />
-                                    <field name="garden_orientation" widget="radio" />
+                                    <field name="garden_orientation" widget="radio"
+                                        invisible="not garden" />
                                     <label for="garden_area" />
                                     <div class="o_row">
                                         <field name="garden_area" />
@@ -123,7 +129,8 @@
                             <field name="description" placeholder="Tulis detail properti di sini..." />
                         </page>
                         <page string="Penawaran">
-                            <field name="offer_ids" />
+                            <field name="offer_ids"
+                                readonly="status in ('offer_accepted', 'sold', 'canceled')" />
                         </page>
                         <page string="Info Lainnya">
                             <group>
